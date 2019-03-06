@@ -1,9 +1,9 @@
 CFLAGS=-c -ansi -Wall -pedantic-errors
 
-all: exec clean
+all: buNeDu clean
 
-exec: buNeDu.o
-	gcc buNeDu.c -o exec
+buNeDu: buNeDu.o
+	gcc buNeDu.c -o buNeDu
 
 buNeDu.o:
 	gcc $(CFLAGS) buNeDu.c
