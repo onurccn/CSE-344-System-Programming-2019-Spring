@@ -1,12 +1,9 @@
-CFLAGS=-c -ansi -Wall -pedantic-errors
+CFLAGS= -Wall -pedantic-errors
 
-all: buNeDu clean
+all: buNeDu
 
-buNeDu: buNeDu.o
-	gcc buNeDu.c -o buNeDu
+buNeDu:
+	gcc $(CFLAGS) buNeDu.c -o buNeDu
 
-buNeDu.o:
-	gcc $(CFLAGS) buNeDu.c
-
-clean: 
-	rm *.o
+clean:
+	rm buNeDu

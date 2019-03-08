@@ -1,5 +1,3 @@
-#define _GNU_SOURCE
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -42,16 +40,17 @@ int depthFirstApply(char * path, int pathfun(char * path1)){
     struct dirent *dir;
     long currentPathSize, totalPathSize = 0, subDirSize;
     char * currentPath;
-    const char seperator[2] = "/";
     struct stat fileStat;
     d = opendir(path);
     if (d) {
         while((dir = readdir(d)) != NULL) {
             /* Append file name to the directory */
             if (strlen(dir->d_name) > 0 && dir->d_name[0] == '.') continue;
+            
             currentPath = (char *) malloc(strlen(path) + strlen(dir->d_name) + 2);
             strcpy(currentPath, path);
             if (path[strlen(path) - 1] != '/'){
+                const char seperator[2] = "/";
                 strcat(currentPath, seperator); /* Also add a slash if it doesnt have one in the end */
             }
             strcat(currentPath, dir->d_name);
