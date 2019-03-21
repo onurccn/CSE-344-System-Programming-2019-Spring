@@ -11,6 +11,7 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <sys/file.h>
+#include <signal.h>
 
 int depthFirstApply(char * path, int pathfun (char * path1));
 
@@ -23,13 +24,18 @@ char * getCurrentPath(char * path, char * name);
 bool detailFlag = false;
 static char * detailOption = "-z";
 static char * filename = "161044057sizes.txt";
-
-int p(){
-    int pids = fork();
-    if(pids > 0){
-        printf("fork\n");
+int mainProcessID;
+int done = 0;
+void signal_handler(int sig) {
+    // Kill all processes except main process here, then main process prints all the information after all child processes termination.
+    
+    if (mainProcessID == getpid()){
+        if (done) printf("==== PROCESSING FINISHED, WRITING INFO INTO TERMINAL, PLEASE WAIT!\n");
+        else printf("ABNORMAL INTERRUPTION - Program terminating, Results so far:\n");
     }
-    return 5;
+    else {
+        exit(EXIT_FAILURE);
+    }
 }
 
 int main(int argc, char *argv[]){
@@ -46,14 +52,44 @@ int main(int argc, char *argv[]){
     else if(argc > 2 && strcmp(argv[2], detailOption) == 0)
         detailFlag = true;
     
+    mainProcessID = getpid();
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = &signal_handler;
+    sigaction(SIGINT, &sa, NULL);
+    
+
     pid_t pid;
     int wstatus;
-
     if ((pid = fork())){
         // Parent process
         if(waitpid(pid, &wstatus, 0)){
+            done = 1;
             // print file contents
-            // Signal handling
+            FILE * fp = fopen(filename, "r");
+            if (fp != NULL) {
+                char * line = NULL;
+                size_t len = 0;
+                ssize_t read;
+                printf("PROCESS\tSIZE\tPATH\n");
+                while((read = getline(&line, &len, fp)) != -1){
+                    printf("==%d==", atoi(line));
+                    int i = 0;
+                    while (line[i] != '-' && line[i] != '\0') i++;    
+                    printf("\t%ld", atol(line + ++i));
+                    while (line[i] != '-' && line[i] != '\0') i++;
+                    printf("\t%s", line + ++i);
+                    
+                    
+                    // printf("%ld", atol(line + ++i));
+                    // while (line[i] != '-' || line[i] != '\0') i++;
+                    // printf("%s", line + ++i);
+                }
+                
+                if (line) free(line);
+                fclose(fp);
+            }
+            printf("FINISHED\n");
             return 0;
         }
     }
@@ -63,6 +99,7 @@ int main(int argc, char *argv[]){
     else {
         // Child process
         depthFirstApply(argv[pathIndex], sizePathFun);
+
         exit(EXIT_SUCCESS);
     }
 }

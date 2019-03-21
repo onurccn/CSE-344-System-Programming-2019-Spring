@@ -1,9 +1,9 @@
 CFLAGS= -Wall -pedantic-errors -std=c99
 
-all: buNeDu
+all: buNeDuFork
 
-buNeDu:
-	gcc $(CFLAGS) buNeDu.c -o buNeDu
+buNeDuFork:
+	gcc $(CFLAGS) buNeDuFork.c -o buNeDuFork
 
 clean:
-	rm buNeDu
+	rm buNeDuFork
