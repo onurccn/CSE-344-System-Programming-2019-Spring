@@ -24,9 +24,11 @@ char * getCurrentPath(char * path, char * name);
 bool detailFlag = false;
 static char * detailOption = "-z";
 static char * filename = "161044057sizes.txt";
+static char * processCounterFile = "161044057p.tmp";
 int mainProcessID;
 int done = 0;
 void signal_handler(int sig) {
+    // Since homework pdf doesnt explain which signals to handle and what to do,
     // Kill all processes except main process here, then main process prints all the information after all child processes termination.
     
     if (mainProcessID == getpid()){
@@ -89,7 +91,15 @@ int main(int argc, char *argv[]){
                 if (line) free(line);
                 fclose(fp);
             }
-            printf("FINISHED\n");
+
+            FILE * pp = fopen(processCounterFile, "r");
+            int childCount = 0;
+            if (pp != NULL){
+                fscanf(pp, "%d", &childCount);
+                fclose(pp);
+            }
+            remove(processCounterFile);
+            printf("%d child processes created. Main process is %d.\n", childCount, mainProcessID);
             return 0;
         }
     }
@@ -105,6 +115,35 @@ int main(int argc, char *argv[]){
 }
 
 int depthFirstApply(char * path, int pathfun(char * path1)){
+    FILE * pp = fopen(processCounterFile, "r+");
+    if (pp != NULL){
+        int child = 0;
+        if (flock(fileno(pp), LOCK_EX) == 0){
+            if (fscanf(pp, "%d", &child) > 0){
+                fseek(pp, 0, SEEK_SET);
+                child++;
+                fprintf(pp, "%d", child);
+            }
+            else {
+                fprintf(pp, "%d", 1);
+            }
+            fflush(pp);
+            flock(fileno(pp), LOCK_UN);
+        }
+        fclose(pp);
+    }
+    else {
+        pp = fopen(processCounterFile, "wb");
+        if (pp){
+            if (flock(fileno(pp), LOCK_EX) == 0){
+                fprintf(pp, "%d", 1);
+                fflush(pp);
+                flock(fileno(pp), LOCK_UN);
+            }
+            fclose(pp);
+        }
+    }
+
     DIR * d;
     struct dirent *dir;
     long currentPathSize, totalPathSize = 0;
@@ -207,8 +246,20 @@ int sizePathFun(char * path){
     if (S_ISREG(fileStat.st_mode)) {
         return fileStat.st_size;
     }
-    printf("Special file %s\n", strrchr(path, '/') + 1);
+    int fd = open(filename, O_CREAT|O_WRONLY|O_APPEND);
+    if (fd > 0){
+        if(flock(fd, LOCK_EX) == 0) {
+            char* directoryInfo;
+            int strSize;
 
+            if ((strSize = asprintf(&directoryInfo, "%d-0-Special file %s\n", getpid(), strrchr(path, '/') + 1)) > 0)
+                write(fd, directoryInfo, strSize);
+
+            free(directoryInfo);
+            flock(fd, LOCK_UN);
+        }
+        close(fd);
+    }
     return -1;
 }
 
