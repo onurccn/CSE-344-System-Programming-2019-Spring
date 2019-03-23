@@ -171,7 +171,7 @@ int depthFirstApply(char * path, int pathfun(char * path1)){
                     exit(0);
                 }
                 else if (pid < 0){
-                    printf("Couldn't fork for directory: %s", currentPath);
+                    printf("Couldn't fork for directory: %s\n", currentPath);
                 }
                 else {
                     // parent process after fork, wait for this child to finish if detail flag is set for retrieving child processes calculation from file's last entry
