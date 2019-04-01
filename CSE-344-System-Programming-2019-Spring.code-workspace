@@ -6,7 +6,9 @@
 	],
 	"settings": {
 		"files.associations": {
-			"stdbool.h": "c"
+			"stdbool.h": "c",
+			"file.h": "c",
+			"wait.h": "c"
 		}
 	}
 }
