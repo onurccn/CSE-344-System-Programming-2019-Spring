@@ -171,14 +171,14 @@ int evaluateAndExecuteCommand(char ** args, int argc) {
                     restoreInOut(args[operatorIndex][0]);
                     printf("Couldn't change current directory!\n");
                     free(arg);
-                    return -1;
+                    return 0;
                 }
                 free(arg);
             }
             else {
                 if (chdir(args[1]) == -1){
                     printf("Couldn't change current directory!\n");
-                    return -1;
+                    return 0;
                 }
             }
         }
@@ -277,7 +277,7 @@ void executePipedCommand(char ** args, int sliceIndex){
             close(pipeline[0]);
             
             char * comm = malloc((strlen(args[sliceIndex + 1]) + 1) * sizeof(char));
-            memcpy(comm, args[0], (strlen(args[sliceIndex + 1]) + 1) * sizeof(char));
+            memcpy(comm, args[sliceIndex + 1], (strlen(args[sliceIndex + 1]) + 1) * sizeof(char));
             getFullPathExecutable(&comm);
             if (execv(comm, &args[sliceIndex + 1]) == -1) {
                 free(comm);
@@ -352,7 +352,7 @@ void changeInOut(char op, char * redir){
     else {
         fflush(stdout);
         saveOut = dup(STDOUT_FILENO);
-        if ((fd = open(redir, O_WRONLY | O_CREAT | O_TRUNC)) == -1) { printf("%sCouldn't opened file %s!%s\n", _RED, redir, _RST); exit(EXIT_FAILURE); }
+        if ((fd = open(redir, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU | S_IRWXG | S_IRWXO)) == -1) { printf("%sCouldn't opened file %s!%s\n", _RED, redir, _RST); exit(EXIT_FAILURE); }
         if (dup2(fd, STDOUT_FILENO) == -1) { printf("%sCouldn't redirect file %s!%s\n", _RED, redir, _RST); exit(EXIT_FAILURE); }
 
     }

@@ -19,6 +19,7 @@ int main(int argc, char *argv[]) {
         size_t size = 0;
         shouldFree = 1;
         getline(&path, &size, stdin);
+        if (path[strlen(path) - 1] == '\n') path[strlen(path) -1] = '\0';
     }
 
     FILE * fp = fopen(path, "r");

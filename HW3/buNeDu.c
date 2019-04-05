@@ -33,7 +33,7 @@ int main(int argc, char *argv[]){
     if (path == NULL) {
         size_t size = 0;
         getline(&path, &size, stdin);
-        path[strlen(path) - 1] = '\0';
+        if (path[strlen(path) - 1] == '\n') path[strlen(path) -1] = '\0';
     }
     printf("PATH TO WORK ON: %s\n", path);
     
