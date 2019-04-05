@@ -38,7 +38,6 @@ int main(int argc, char *argv[]){
     printf("PATH TO WORK ON: %s\n", path);
     
     depthFirstApply(path, sizePathFun);
-    
 
     return 0;
 }
